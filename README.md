@@ -12,17 +12,19 @@ A distributed system monitor built from scratch: agents read Linux `/proc`, send
 
 ---
 
-## Screenshots
+## 📸 Screenshots
 
-| Overview Dashboard | Machine Detail |
-|---|---|
-| ![Overview Dashboard](screenshots/overview.png) | ![Machine Detail](screenshots/machine_detail.png) |
-| *Machine cards updating live — green = healthy, amber = alert, red = offline* | *Real-time CPU and RAM charts with process table* |
+### Overview Dashboard
+![](./screenshots/overview.png)
 
-| Query Console | Alerts |
-|---|---|
-| ![Query Console](screenshots/query_console.png) | ![Alerts Page](screenshots/alerts.png) |
-| *SQL-like queries against the hand-built B+ tree indexed storage engine* | *Rule-based anomaly alerts with severity levels and resolution tracking* |
+### Machine Detail
+![](./screenshots/machine_detail.png)
+
+### Query Console
+![](./screenshots/query_console.png)
+
+### Alerts
+![](./screenshots/alerts.png)
 
 ---
 
