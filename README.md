@@ -6,45 +6,37 @@
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-brightgreen)
 
-A distributed system monitor built from scratch: agents read Linux `/proc`, send metrics over a custom binary TCP protocol, get stored in a hand-written database with a B+ tree index, and appear live on a React dashboard. No external databases, no monitoring frameworks—every layer is custom-built.
+A distributed system monitor built from scratch: agents read Linux `/proc`, send metrics over a custom binary TCP protocol, get stored in a hand-written database with a B+ tree index, and appear live on a React dashboard. No external databases, no monitoring frameworks — every layer is custom-built.
 
-> ⚡ **Built from scratch** — no SQLite, no psutil, no asyncio. Every layer is hand-written.
-
----
-
-## 📸 Screenshots
-
-### Live Overview Dashboard
-![Overview Dashboard](screenshots/overview.png)
-*Three machine cards updating live — green = healthy, amber = alert, red = offline*
-
-### Machine Detail View  
-![Machine Detail](screenshots/machine_detail.png)
-*Real-time CPU and RAM charts with process table*
-
-### Query Console
-![Query Console](screenshots/query_console.png)
-*SQL-like queries running against the hand-built B+ tree indexed storage engine*
-
-### Alerts Page
-![Alerts Page](screenshots/alerts.png)
-*Rule-based anomaly alerts with severity levels and resolution tracking*
-
-> 📷 **To add screenshots:** Run `docker-compose up --build`, open http://localhost:5000, take screenshots of each page, and save them as `screenshots/overview.png`, `screenshots/machine_detail.png`, `screenshots/query_console.png`, `screenshots/alerts.png`.
+> **Built from scratch** — no SQLite, no psutil, no asyncio. Every layer is hand-written.
 
 ---
 
-## 🤔 What is this?
+## Screenshots
 
-Imagine you run three Linux servers. Every few minutes, you SSH into each one to check if the CPU is spiking or RAM is running low. It's slow, error-prone, and doesn't scale beyond a handful of machines. A proper monitoring system watches all servers from one place and alerts you when something goes wrong—like a car dashboard that shows speed, fuel, and engine temperature instead of making you check each gauge separately.
+| Overview Dashboard | Machine Detail |
+|---|---|
+| ![Overview Dashboard](screenshots/overview.png) | ![Machine Detail](screenshots/machine_detail.png) |
+| *Machine cards updating live — green = healthy, amber = alert, red = offline* | *Real-time CPU and RAM charts with process table* |
 
-NetSysDB does exactly that. It runs a lightweight agent on each machine that reads system stats (CPU, RAM, disk I/O, network) every 5 seconds and sends them to a central collector. The collector stores every metric in a database it built from the ground up, indexes them with a B+ tree for fast queries, and pushes live updates to a web dashboard in your browser. You see all your machines in one place, spot trends, and drill into any machine's detail page.
+| Query Console | Alerts |
+|---|---|
+| ![Query Console](screenshots/query_console.png) | ![Alerts Page](screenshots/alerts.png) |
+| *SQL-like queries against the hand-built B+ tree indexed storage engine* | *Rule-based anomaly alerts with severity levels and resolution tracking* |
+
+---
+
+## What is this?
+
+Imagine you run three Linux servers. Every few minutes, you SSH into each one to check if the CPU is spiking or RAM is running low. It's slow, error-prone, and doesn't scale beyond a handful of machines. A proper monitoring system watches all servers from one place and alerts you when something goes wrong — like a car dashboard that shows speed, fuel, and engine temperature instead of making you check each gauge separately.
+
+NetSysDB does exactly that. It runs a lightweight agent on each machine that reads system stats (CPU, RAM, disk I/O, network) every 5 seconds and sends them to a central collector. The collector stores every metric in a database built from the ground up, indexes them with a B+ tree for fast queries, and pushes live updates to a web dashboard in your browser. You see all your machines in one place, spot trends, and drill into any machine's detail page.
 
 The reason this is a strong CS project is that **real monitoring tools like Datadog, Prometheus, and Grafana are installed, not built**. This project builds every layer from the ground up: the network protocol (binary TCP, not HTTP), the storage engine (paged binary files, not SQLite), the indexing (B+ tree, hand-written), the query engine (SQL-like parser), and the web interface (React). It demonstrates deep understanding of operating systems, databases, networking, and full-stack development.
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 ┌─────────────┐
@@ -97,52 +89,58 @@ The reason this is a strong CS project is that **real monitoring tools like Data
 
 ---
 
-## ✨ Features
+## Features
 
 | Feature | Description |
-|---------|-------------|
-| 🔴 **Live Monitoring** | CPU, RAM, disk, and network stats update every 5 seconds in the browser |
-| 🗄️ **Hand-built Database** | Binary page-based storage engine with free-space bitmap — no SQLite |
-| 🌳 **B+ Tree Index** | Custom B+ tree on timestamps for fast range queries (O log n lookup) |
-| 🛡️ **Crash Recovery** | Write-ahead log (WAL) ensures no data loss if the server crashes mid-write |
-| 🔍 **SQL-like Queries** | Query your metrics with SELECT, WHERE, GROUP BY, ORDER BY, LIMIT |
-| ⚡ **Real-time Alerts** | Sliding-window anomaly detection fires alerts when thresholds are crossed |
-| 🎭 **Fake Agents** | Simulate CPU spikes, RAM pressure, and dying nodes without real hardware |
-| 🐳 **One Command Deploy** | `docker-compose up --build` starts everything |
+|---|---|
+| **Live Monitoring** | CPU, RAM, disk, and network stats update every 5 seconds in the browser |
+| **Hand-built Database** | Binary page-based storage engine with free-space bitmap — no SQLite |
+| **B+ Tree Index** | Custom B+ tree on timestamps for fast range queries (O log n lookup) |
+| **Crash Recovery** | Write-ahead log (WAL) ensures no data loss if the server crashes mid-write |
+| **SQL-like Queries** | Query your metrics with SELECT, WHERE, GROUP BY, ORDER BY, LIMIT |
+| **Real-time Alerts** | Sliding-window anomaly detection fires alerts when thresholds are crossed |
+| **Fake Agents** | Simulate CPU spikes, RAM pressure, and dying nodes without real hardware |
+| **One Command Deploy** | `docker-compose up --build` starts everything |
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Backend (Python 3.11)
 
-- **socket** — Opens raw TCP connections between agents and collector. No HTTP wrapper, pure protocol.
-- **struct** — Packs metric data into 44-byte binary records and unpacks them from disk pages.
-- **selectors** — Non-blocking I/O event loop in the collector (accept TCP, read UDP, handle timeouts).
-- **threading** — Agent runs reader, sender, and heartbeat as separate daemon threads.
-- **flask** — REST API server (7 endpoints); runs on port 5000.
-- **flask-socketio** — WebSocket upgrades for live dashboard updates without polling.
-- **json** — Payload serialization between agents and collector; alert/rule persistence.
-- **uuid** — Generates unique IDs for alerts and internal tracking.
+| Library | Role |
+|---|---|
+| `socket` | Opens raw TCP connections between agents and collector. No HTTP wrapper, pure protocol. |
+| `struct` | Packs metric data into 44-byte binary records and unpacks them from disk pages. |
+| `selectors` | Non-blocking I/O event loop in the collector (accept TCP, read UDP, handle timeouts). |
+| `threading` | Agent runs reader, sender, and heartbeat as separate daemon threads. |
+| `flask` | REST API server (7 endpoints); runs on port 5000. |
+| `flask-socketio` | WebSocket upgrades for live dashboard updates without polling. |
+| `json` | Payload serialization between agents and collector; alert/rule persistence. |
+| `uuid` | Generates unique IDs for alerts and internal tracking. |
 
 ### Frontend (React 18)
 
-- **React 18** — Component-based UI; hooks for state and side effects.
-- **Vite** — Fast dev server and production bundler (replaces Create React App).
-- **Tailwind CSS** — Utility-first styling; responsive design out of the box.
-- **Recharts** — Live-updating line charts for CPU and RAM trends.
-- **socket.io-client** — Subscribes to WebSocket events for live metric and alert updates.
-- **axios** — HTTP client for REST API calls (machines, metrics, alerts, queries).
-- **lucide-react** — Lightweight SVG icon library (activity, alert, check, etc.).
+| Library | Role |
+|---|---|
+| React 18 | Component-based UI; hooks for state and side effects. |
+| Vite | Fast dev server and production bundler (replaces Create React App). |
+| Tailwind CSS | Utility-first styling; responsive design out of the box. |
+| Recharts | Live-updating line charts for CPU and RAM trends. |
+| socket.io-client | Subscribes to WebSocket events for live metric and alert updates. |
+| axios | HTTP client for REST API calls (machines, metrics, alerts, queries). |
+| lucide-react | Lightweight SVG icon library (activity, alert, check, etc.). |
 
 ### Infrastructure
 
-- **Docker & Docker Compose** — One `docker-compose.yml` spins up collector, 3 real agents, and 2 fake agents as separate services.
-- **Git** — Version control; all code is tracked and reproducible.
+| Tool | Role |
+|---|---|
+| Docker & Docker Compose | One `docker-compose.yml` spins up collector, 3 real agents, and 2 fake agents as separate services. |
+| Git | Version control; all code is tracked and reproducible. |
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 .
@@ -241,7 +239,7 @@ The reason this is a strong CS project is that **real monitoring tools like Data
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -259,8 +257,6 @@ The reason this is a strong CS project is that **real monitoring tools like Data
 git clone https://github.com/YOUR_USERNAME/netsysdb.git
 cd netsysdb
 ```
-
-This clones the full project including all layers.
 
 **Step 2 — Build the React dashboard (one-time setup)**
 
@@ -291,7 +287,7 @@ Runs 29 tests covering binary protocol encoding/decoding, page-based storage rou
 
 ---
 
-## 💻 Usage
+## Usage
 
 ### Query Console
 
@@ -338,7 +334,7 @@ SCENARIO=random         # Completely random values
 SCENARIO=normal         # Steady idle metrics (default)
 ```
 
-Example: add a fake agent to docker-compose.yml:
+Example: add a fake agent to `docker-compose.yml`:
 
 ```yaml
 fake-agent-test:
@@ -360,10 +356,10 @@ Then `docker-compose up --build` — test-spike will appear on the dashboard and
 
 ---
 
-## 🌐 API Reference
+## API Reference
 
 | Method | Endpoint | Request Body | Response |
-|--------|----------|--------------|----------|
+|---|---|---|---|
 | GET | `/api/machines` | — | List of machines with status |
 | GET | `/api/machines/<name>/metrics` | — | Last 100 metrics for machine |
 | GET | `/api/machines/<name>/procs` | — | Process list for machine |
@@ -379,7 +375,7 @@ All endpoints return JSON. The collector runs on `localhost:5000` inside Docker;
 
 ---
 
-## 🔬 How It Works
+## How It Works
 
 <details>
 <summary><b>Binary Storage Engine</b></summary>
@@ -418,13 +414,13 @@ A rule like "CPU > 85% for 5 minutes" should only fire once, not constantly. A s
 
 ---
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
 | Problem | Fix |
-|---------|-----|
-| Port 5000 already in use | Run `lsof -i :5000` and kill the process, or change the port in docker-compose.yml |
+|---|---|
+| Port 5000 already in use | Run `lsof -i :5000` and kill the process, or change the port in `docker-compose.yml` |
 | Dashboard shows no machines | Wait 15 seconds — agents take time to connect. Check `docker logs netsysdb-agent-1-1` |
 | Tests fail on Windows | Run pytest in WSL or inside the container: `docker exec -it netsysdb-collector-1 pytest tests/ -v` |
 | `data/` folder permission error | Run `mkdir data` manually before `docker-compose up` |
@@ -489,7 +485,7 @@ python tools/inject_alert.py --machine node-1 --severity HIGH --message "test"
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 - Fork the repo, create a feature branch, open a pull request
 - Run `pytest tests/ -v` and `black .` (code formatting) before submitting
@@ -497,13 +493,13 @@ python tools/inject_alert.py --machine node-1 --severity HIGH --message "test"
 
 ---
 
-## 📄 License
+## License
 
 MIT License. See LICENSE file for details.
 
 ---
 
-## 🙏 Acknowledgements
+## Acknowledgements
 
 - Inspired by Datadog, Prometheus, and Grafana — but built instead of installed
 - B+ tree implementation guided by CLRS *Introduction to Algorithms*, Chapter 18
