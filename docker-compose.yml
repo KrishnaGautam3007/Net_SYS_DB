@@ -1,0 +1,105 @@
+# NetSysDB — all services build from the same root Dockerfile.
+# The collector uses the image's default CMD (collector/collector.py).
+# Each agent overrides the command to run agent/agent.py with its own env.
+services:
+  collector:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: netsysdb-collector-1
+    command: ["python", "collector/collector.py"]
+    ports:
+      - "9000:9000"       # TCP: agent -> collector
+      - "9001:9001/udp"   # UDP: heartbeat
+      - "5000:5000"       # HTTP / WebSocket (UI + REST API)
+    volumes:
+      - ./data:/app/data
+    networks:
+      - netsysdb-net
+
+  agent-1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: netsysdb-agent-1-1
+    command: ["python", "agent/agent.py"]
+    privileged: true
+    environment:
+      COLLECTOR_HOST: collector
+      COLLECTOR_PORT: "9000"
+      MACHINE_ID: node-1
+      METRIC_INTERVAL: "5"
+    depends_on:
+      - collector
+    networks:
+      - netsysdb-net
+
+  agent-2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: netsysdb-agent-2-1
+    command: ["python", "agent/agent.py"]
+    privileged: true
+    environment:
+      COLLECTOR_HOST: collector
+      COLLECTOR_PORT: "9000"
+      MACHINE_ID: node-2
+      METRIC_INTERVAL: "5"
+    depends_on:
+      - collector
+    networks:
+      - netsysdb-net
+
+  agent-3:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: netsysdb-agent-3-1
+    command: ["python", "agent/agent.py"]
+    privileged: true
+    environment:
+      COLLECTOR_HOST: collector
+      COLLECTOR_PORT: "9000"
+      MACHINE_ID: node-3
+      METRIC_INTERVAL: "5"
+    depends_on:
+      - collector
+    networks:
+      - netsysdb-net
+
+  fake-agent-1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: netsysdb-fake-agent-1-1
+    command: ["python", "agent/fake_agent.py"]
+    environment:
+      COLLECTOR_HOST: collector
+      COLLECTOR_PORT: "9000"
+      MACHINE_ID: fake-node-1
+      SCENARIO: cpu_spike
+    depends_on:
+      - collector
+    networks:
+      - netsysdb-net
+
+  fake-agent-2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: netsysdb-fake-agent-2-1
+    command: ["python", "agent/fake_agent.py"]
+    environment:
+      COLLECTOR_HOST: collector
+      COLLECTOR_PORT: "9000"
+      MACHINE_ID: fake-node-2
+      SCENARIO: ram_pressure
+    depends_on:
+      - collector
+    networks:
+      - netsysdb-net
+
+networks:
+  netsysdb-net:
+    driver: bridge

@@ -1,0 +1,6 @@
+[
+  {"name": "cpu_high",   "field": "cpu_percent",   "threshold": 90.0,    "window_sec": 30,  "severity": "HIGH"},
+  {"name": "ram_high",   "field": "ram_pct",       "threshold": 90.0,    "window_sec": 10,  "severity": "HIGH"},
+  {"name": "cpu_warn",   "field": "cpu_percent",   "threshold": 75.0,    "window_sec": 300, "severity": "MEDIUM"},
+  {"name": "disk_write", "field": "disk_write_kb", "threshold": 102400,  "window_sec": 60,  "severity": "MEDIUM"}
+]

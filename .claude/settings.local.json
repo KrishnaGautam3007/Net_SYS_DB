@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --version)",
+      "Bash(docker --version)",
+      "Bash(docker-compose --version)",
+      "Bash(docker compose *)",
+      "Bash(git --version)",
+      "Bash(rm -f data/metrics.db data/pages.bitmap data/wal.log data/machines.json data/alerts.json)",
+      "Bash(mkdir -p screenshots)",
+      "Bash(docker-compose up *)",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "mcp__Claude_in_Chrome__browser_batch",
+      "mcp__Claude_in_Chrome__computer",
+      "Bash(cd \"C:/Users/krish/OneDrive/Desktop/Project\" && ls -lh /tmp/claude* 2>/dev/null | head -20 || echo \"Checking saved screenshot paths...\" && find ~/.cache -name \"*.jpeg\" -o -name \"*.jpg\" 2>/dev/null | head -10 || echo \"Screenshots captured by extension\")"
+    ]
+  }
+}
